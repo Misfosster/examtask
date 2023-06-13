@@ -1,6 +1,8 @@
 package facades;
 
 import entities.Guest;
+import entities.Role;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
@@ -42,7 +44,16 @@ public class GuestFacade {
             } catch (Exception ex) {
                 System.out.println("Creating guest");
             }
-            em.persist(guest);
+            try {
+                TypedQuery<Role> query1 = em.createQuery("SELECT r FROM Role r WHERE r.roleName = :roleName", Role.class).setParameter("roleName", "user");
+                Role existingRole = query1.getSingleResult();
+                guest.getUser().addRole(existingRole);
+            } catch (Exception ex) {
+                System.out.println("Creating role");
+                guest.getUser().addRole(new Role("user"));
+                em.persist(guest);
+            }
+            em.merge(guest);
             em.getTransaction().commit();
         } finally {
             em.close();

@@ -1,30 +1,31 @@
 package rest;
 
-import com.nimbusds.jose.shaded.json.JSONObject;
-import entities.*;
-import facades.ShowFacade;
+import entities.Guest;
+import entities.Role;
+import entities.Show;
+import entities.User;
+import facades.GuestFacade;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.json.JSONObject;
 import org.junit.jupiter.api.*;
 import utils.EMF_Creator;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.TypedQuery;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.sql.Date;
 import java.sql.Time;
-import java.text.SimpleDateFormat;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
-class ShowResourceTest {
-
+public class GuestResourceTest {
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_URL = "http://localhost/api";
     private Show s1, s2;
@@ -33,7 +34,7 @@ class ShowResourceTest {
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static HttpServer httpServer;
     private static EntityManagerFactory emf;
-    private static ShowFacade showFacade;
+    private static GuestFacade guestFacade;
 
     static HttpServer startServer() {
         ResourceConfig rc = ResourceConfig.forApplication(new ApplicationConfig());
@@ -45,13 +46,25 @@ class ShowResourceTest {
         EMF_Creator.startREST_TestWithDB();
         emf = EMF_Creator.createEntityManagerFactoryForTest();
 
-        showFacade = ShowFacade.getFacade(emf);
+        guestFacade = GuestFacade.getFacade(emf);
 
         httpServer = startServer();
         // Setup RestAssured
         RestAssured.baseURI = SERVER_URL;
         RestAssured.port = SERVER_PORT;
         RestAssured.defaultParser = Parser.JSON;
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.createQuery("DELETE FROM Show").executeUpdate();
+            em.createQuery("DELETE FROM Guest").executeUpdate();
+            em.createQuery("DELETE FROM User").executeUpdate();
+            em.createQuery("DELETE FROM Festival").executeUpdate();
+            em.createQuery("DELETE FROM Role").executeUpdate();
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
     }
 
 
@@ -88,21 +101,14 @@ class ShowResourceTest {
 
         try {
             em.getTransaction().begin();
-            User user = new User("testname", "testpw");
             User admin = new User("admin", "adminpw");
             Role role = new Role("admin");
             admin.addRole(role);
-
-            em.merge(admin);
-            em.persist(user);
-            g1 = new Guest(user, "1280931289985", "test@email.com", "teststatus");
-            em.persist(g1);
+            em.persist(admin);
 
             s1 = new Show("Resourcetest show", 120, new Date(System.currentTimeMillis()).toString(), new Time(System.currentTimeMillis()).toString());
             em.persist(s1);
 
-            s1.addGuest(g1);
-            em.merge(g1);
 
             s2 = new Show("Resourcetest show2", 120, new Date(System.currentTimeMillis()).toString(), new Time(System.currentTimeMillis()).toString());
             em.persist(s2);
@@ -129,106 +135,56 @@ class ShowResourceTest {
     }
 
     @Test
-    void getAvailableShows() {
-        int expected = 2;
-        int actual = 0;
-        try {
-            actual = RestAssured.given().when().get("/show").then().extract().body().jsonPath().getList("name").size();
-        } catch (Exception e) {
-            fail("An error occurred while retrieving available shows: " + e.getMessage());
-        }
-        assertEquals(expected, actual, "Number of available shows does not match the expected value.");
-    }
+    void signUp() {
+        User user = new User("testname", "testpw");
+        guestFacade.create(new Guest(user, "12214589632145896", "testemail", "teststatus"));
+        login("testname", "testpw");
 
-    @Test
-    void getShowsByGuest() {
-        int expected = 1;
-        int actual = 0;
-        try {
-            actual = RestAssured.given().when().get("/show/testname/").then().extract().body().jsonPath().getList("name").size();
-        } catch (Exception e) {
-            fail("An error occurred while retrieving shows for the guest: " + e.getMessage());
-        }
-        assertEquals(expected, actual, "Number of shows for the guest does not match the expected value.");
-    }
-
-
-    @Test
-    void createShow() {
-        login("admin", "adminpw");
-        String json = String.format("{\"name\": \"%s\", \"duration\": %d, \"startDate\": \"%s\", \"startTime\": \"%s\"}", "Testshow", 120, new Date(System.currentTimeMillis()), new Time(System.currentTimeMillis()));
-        try {
-            given()
-                    .contentType("application/json")
-                    .header("x-access-token", securityToken)
-                    .body(json)
-                    .when().post("/show/create")
-                    .then()
-                    .statusCode(200)
-                    .body("name", equalTo("Testshow"));
-        } catch (Exception e) {
-
-        }
-    }
-
-    @Test
-    public void update() {
-        // Create a new show
-        login("admin", "adminpw");
-        Show show = new Show();
-        show.setName("Test show");
-        show.setDuration(120);
-        show.setStartDate(new Date(System.currentTimeMillis()).toString());
-        show.setStartTime(new Time(System.currentTimeMillis()).toString());
-        show = showFacade.create(show);
-
-        assertEquals("Test show", show.getName(), "Show name does not match the expected value.");
-
-        JSONObject json = new JSONObject();
-        json.put("id", show.getId());
-        json.put("name", "Updated show");
-        json.put("duration", 180);
-        json.put("startDate", new Date(System.currentTimeMillis()).toString());
-        json.put("startTime", new Time(System.currentTimeMillis()).toString());
 
         try {
             given()
                     .contentType("application/json")
                     .header("x-access-token", securityToken)
-                    .body(json.toString())
+                    .queryParam("username", "testname")
+                    .body(s2)
                     .when()
-                    .put("/show/update")
-                    .then()
-                    .statusCode(200)
-                    .body("name", equalTo("Updated show"));
-        } catch (Exception e) {
-            fail("An error occurred while updating the show: " + e.getMessage());
-        }
-    }
-
-
-    @Test
-    void delete() {
-        login("admin", "adminpw");
-        Show show = new Show();
-        show.setName("Test show");
-        show.setDuration(120);
-        show.setStartDate(new Date(System.currentTimeMillis()).toString());
-        show.setStartTime(new Time(System.currentTimeMillis()).toString());
-        show = showFacade.create(show);
-        try {
-            given()
-                    .contentType("application/json")
-                    .header("x-access-token", securityToken)
-                    .when()
-                    .delete("/show/delete/{id}", show.getId())
+                    .put("/guest/signup/{username}", "testname")
                     .then()
                     .statusCode(200);
         } catch (Exception e) {
-            fail("An error occurred while deleting the show: " + e.getMessage());
+            fail("An error occurred while signing up: " + e.getMessage());
         }
     }
 
+    @Test
+    void create() {
+        login("admin", "adminpw");
+        EntityManager em = emf.createEntityManager();
+        User user = new User("testname2", "testpw");
+//        Role role = new Role("user");
+//        user.addRole(role);
+//        em.getTransaction().begin();
+//        em.merge(user);
+//        em.getTransaction().commit();
+
+        Guest guest = new Guest(user, "12214589632145896", "testemail", "teststatus");
+        em.persist(guest);
+
+        try {
+            given()
+                    .contentType("application/json")
+                    .header("x-access-token", securityToken)
+                    .body(guest)
+                    .when()
+                    .post("/guest/create")
+                    .then()
+                    .statusCode(200);
+        } catch (Exception e) {
+            fail("An error occurred while creating: " + e.getMessage());
+        }
+    }
+
+
+
+
 }
-
-

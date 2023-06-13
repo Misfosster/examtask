@@ -1,7 +1,6 @@
 package entities;
 
 import javax.persistence.*;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +19,7 @@ public class Festival {
     private String city;
 
     @Column(name = "startDate", nullable = false) // YYYY-MM-DD (2023-06-13)
-    private Date startDate;
+    private String startDate;
 
     @Column(name = "duration", nullable = false)
     private Integer duration;
@@ -31,7 +30,7 @@ public class Festival {
     public Festival() {
     }
 
-    public Festival(String name, String city, Date startDate, Integer duration) {
+    public Festival(String name, String city, String startDate, Integer duration) {
         this.name = name;
         this.city = city;
         this.startDate = startDate;
@@ -43,11 +42,11 @@ public class Festival {
         guest.setFestival(this);
     }
 
-    public Date getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 

@@ -103,10 +103,6 @@ class GuestFacadeTest {
     void create() {
         User user = new User("testname2", "testpw2");
 
-        em.getTransaction().begin();
-        em.persist(user);
-        em.getTransaction().commit();
-
         Guest guest = new Guest();
         guest.setEmail("testemail2");
         guest.setPhone("87654321");

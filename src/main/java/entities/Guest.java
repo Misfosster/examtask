@@ -13,7 +13,7 @@ public class Guest {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "name", referencedColumnName = "user_name")
     private User user;
 

@@ -38,7 +38,7 @@ class FestivalFacadeTest {
             Festival festival = new Festival();
             festival.setName("Test festival");
             festival.setCity("Test city");
-            festival.setStartDate(new Date(System.currentTimeMillis()));
+            festival.setStartDate(new Date(System.currentTimeMillis()).toString());
             festival.setDuration(120);
 
             User user = new User("testname", "testpw");
@@ -82,10 +82,10 @@ class FestivalFacadeTest {
 
     @Test
     void create() {
-        Festival festival = new Festival("Test festival", "Test city", new Date(System.currentTimeMillis()), 120);
+        EntityManager em = emf.createEntityManager();
+        Festival festival = new Festival("Test festival", "Test city", new Date(System.currentTimeMillis()).toString(), 120);
 
-        User user = new User("testname", "testpw");
-        em.persist(user);
+        User user = new User("testname1", "testpw");
 
         Guest guest = new Guest(user, "128312983", "testemail2", "teststatus");
         em.persist(guest);
