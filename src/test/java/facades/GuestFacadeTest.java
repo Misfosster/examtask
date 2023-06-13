@@ -37,20 +37,20 @@ class GuestFacadeTest {
             Show show = new Show();
             show.setName("Test show");
             show.setDuration(120);
-            show.setStartDate(new Date(System.currentTimeMillis()));
-            show.setStartTime(new Time(System.currentTimeMillis()));
+            show.setStartDate(new Date(System.currentTimeMillis()).toString());
+            show.setStartTime(new Time(System.currentTimeMillis()).toString());
 
             Show show2 = new Show();
             show2.setName("Test show2");
             show2.setDuration(120);
-            show2.setStartDate(new Date(System.currentTimeMillis()));
-            show2.setStartTime(new Time(System.currentTimeMillis()));
+            show2.setStartDate(new Date(System.currentTimeMillis()).toString());
+            show2.setStartTime(new Time(System.currentTimeMillis()).toString());
 
             Show show3 = new Show();
             show3.setName("Test show3");
             show3.setDuration(120);
-            show3.setStartDate(new Date(System.currentTimeMillis()));
-            show3.setStartTime(new Time(System.currentTimeMillis()));
+            show3.setStartDate(new Date(System.currentTimeMillis()).toString());
+            show3.setStartTime(new Time(System.currentTimeMillis()).toString());
 
             User user = new User("testname", "testpw");
             em.persist(user);

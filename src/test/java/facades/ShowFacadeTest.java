@@ -42,7 +42,7 @@ public class ShowFacadeTest {
             em.createQuery("DELETE FROM User").executeUpdate();
             em.createQuery("DELETE FROM Festival").executeUpdate();
 
-            Show show = new Show("Test show", 120, new Date(System.currentTimeMillis()), new Time(System.currentTimeMillis()));
+            Show show = new Show("Test show", 120, new Date(System.currentTimeMillis()).toString(), new Time(System.currentTimeMillis()).toString());
 
             User user = new User("testname", "testpw");
 
@@ -93,8 +93,8 @@ public class ShowFacadeTest {
         Show show = new Show();
         show.setName("Test show2");
         show.setDuration(120);
-        show.setStartDate(new Date(System.currentTimeMillis()));
-        show.setStartTime(new Time(System.currentTimeMillis()));
+        show.setStartDate(new Date(System.currentTimeMillis()).toString());
+        show.setStartTime(new Time(System.currentTimeMillis()).toString());
 
         show = facade.create(show);
 
@@ -106,8 +106,8 @@ public class ShowFacadeTest {
         Show show = new Show();
         show.setName("Test showfkasdkasd");
         show.setDuration(120);
-        show.setStartDate(new Date(System.currentTimeMillis()));
-        show.setStartTime(new Time(System.currentTimeMillis()));
+        show.setStartDate(new Date(System.currentTimeMillis()).toString());
+        show.setStartTime(new Time(System.currentTimeMillis()).toString());
 
         show = facade.create(show);
         assertEquals("Test showfkasdkasd", show.getName());
@@ -122,8 +122,8 @@ public class ShowFacadeTest {
         Show show = new Show();
         show.setName("Test show4deletion");
         show.setDuration(120); // Set the duration in minutes
-        show.setStartDate(new Date(System.currentTimeMillis())); // Set the current date as the start date
-        show.setStartTime(new Time(System.currentTimeMillis())); // Set the current time as the start time
+        show.setStartDate(new Date(System.currentTimeMillis()).toString()); // Set the current date as the start date
+        show.setStartTime(new Time(System.currentTimeMillis()).toString()); // Set the current time as the start time
         show = facade.create(show);
         assertTrue(facade.delete(show));
     }
@@ -141,7 +141,7 @@ public class ShowFacadeTest {
         TypedQuery<Guest> query = em.createQuery("SELECT g FROM Guest g", Guest.class);
         Guest guest = query.getResultList().get(0);
 
-        Show show = new Show("Test show", 120, new Date(System.currentTimeMillis()), new Time(System.currentTimeMillis()));
+        Show show = new Show("Test show", 120, new Date(System.currentTimeMillis()).toString(), new Time(System.currentTimeMillis()).toString());
         show.addGuest(guest);
         em.persist(show);
 

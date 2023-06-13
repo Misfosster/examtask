@@ -21,10 +21,10 @@ public class Show {
     private Integer duration;
 
     @Column(name = "startDate", nullable = false) // YYYY-MM-DD (2023-06-13)
-    private Date startDate;
+    private String startDate;
 
     @Column(name = "startTime", nullable = false) // HH:MM:SS (18:30:00)
-    private Time startTime;
+    private String startTime;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "shows_guests",
@@ -36,7 +36,7 @@ public class Show {
     public Show () {
     }
 
-    public Show (String name, Integer duration, Date startDate, Time startTime) {
+    public Show (String name, Integer duration, String startDate, String startTime) {
         this.name = name;
         this.duration = duration;
         this.startDate = startDate;
@@ -77,19 +77,19 @@ public class Show {
         this.id = id;
     }
 
-    public Date getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
-    public Time getStartTime() {
+    public String getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Time startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 

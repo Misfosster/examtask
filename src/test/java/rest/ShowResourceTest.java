@@ -1,9 +1,7 @@
 package rest;
 
-import entities.Guest;
-import entities.RenameMe;
-import entities.Show;
-import entities.User;
+import com.nimbusds.jose.shaded.json.JSONObject;
+import entities.*;
 import facades.ShowFacade;
 import io.restassured.RestAssured;
 import io.restassured.parsing.Parser;
@@ -19,7 +17,10 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.sql.Date;
 import java.sql.Time;
+import java.text.SimpleDateFormat;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ShowResourceTest {
@@ -63,6 +64,7 @@ class ShowResourceTest {
             em.createQuery("DELETE FROM Guest").executeUpdate();
             em.createQuery("DELETE FROM User").executeUpdate();
             em.createQuery("DELETE FROM Festival").executeUpdate();
+            em.createQuery("DELETE FROM Role").executeUpdate();
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -87,17 +89,22 @@ class ShowResourceTest {
         try {
             em.getTransaction().begin();
             User user = new User("testname", "testpw");
+            User admin = new User("admin", "adminpw");
+            Role role = new Role("admin");
+            admin.addRole(role);
+
+            em.persist(admin);
             em.persist(user);
             g1 = new Guest(user, "1280931289985", "test@email.com", "teststatus");
             em.persist(g1);
 
-            s1 = new Show("Resourcetest show", 120, new Date(System.currentTimeMillis()), new Time(System.currentTimeMillis()));
+            s1 = new Show("Resourcetest show", 120, new Date(System.currentTimeMillis()).toString(), new Time(System.currentTimeMillis()).toString());
             em.persist(s1);
 
             s1.addGuest(g1);
             em.merge(g1);
 
-            s2 = new Show("Resourcetest show2", 120, new Date(System.currentTimeMillis()), new Time(System.currentTimeMillis()));
+            s2 = new Show("Resourcetest show2", 120, new Date(System.currentTimeMillis()).toString(), new Time(System.currentTimeMillis()).toString());
             em.persist(s2);
 
             em.getTransaction().commit();
@@ -130,6 +137,76 @@ class ShowResourceTest {
         }
         assertEquals(expected, actual, "Number of shows for the guest does not match the expected value.");
     }
+
+    private static String securityToken;
+
+    //Utility method to login and set the returned securityToken
+    private static void login(String role, String password) {
+        String json = String.format("{username: \"%s\", password: \"%s\"}", role, password);
+        securityToken = given()
+                .contentType("application/json")
+                .body(json)
+                //.when().post("/api/login")
+                .when().post("/login")
+                .then()
+                .extract().path("token");
+        //System.out.println("TOKEN ---> " + securityToken);
+    }
+
+    @Test
+    void createShow() {
+        login("admin", "adminpw");
+        String json = String.format("{\"name\": \"%s\", \"duration\": %d, \"startDate\": \"%s\", \"startTime\": \"%s\"}", "Testshow", 120, new Date(System.currentTimeMillis()), new Time(System.currentTimeMillis()));
+        try {
+            given()
+                    .contentType("application/json")
+                    .header("x-access-token", securityToken)
+                    .body(json)
+                    .when().post("/show/create")
+                    .then()
+                    .statusCode(200)
+                    .body("name", equalTo("Testshow"));
+        } catch (Exception e) {
+
+        }
+    }
+    @Test
+    public void update() {
+        // Create a new show
+        login("admin", "adminpw");
+        Show show = new Show();
+        show.setName("Test show");
+        show.setDuration(120);
+        show.setStartDate(new Date(System.currentTimeMillis()).toString());
+        show.setStartTime(new Time(System.currentTimeMillis()).toString());
+        show = showFacade.create(show);
+
+        assertEquals("Test show", show.getName(), "Show name does not match the expected value.");
+
+        JSONObject json = new JSONObject();
+        json.put("id", show.getId());
+        json.put("name", "Updated show");
+        json.put("duration", 180);
+        json.put("startDate", new Date(System.currentTimeMillis()).toString());
+        json.put("startTime", new Time(System.currentTimeMillis()).toString());
+
+        try {
+            // Perform the update request
+            given()
+                    .contentType("application/json")
+                    .header("x-access-token", securityToken)
+                    .body(json.toString())
+                    .when()
+                    .put("/show/update")
+                    .then()
+                    .statusCode(200)
+                    .body("name", equalTo("Updated show"));
+        } catch (Exception e) {
+            fail("An error occurred while updating the show: " + e.getMessage());
+        }
+    }
+
+
 
 
 }
