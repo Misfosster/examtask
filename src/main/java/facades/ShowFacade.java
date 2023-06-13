@@ -1,8 +1,5 @@
 package facades;
-
-import dtos.RenameMeDTO;
 import entities.Guest;
-import entities.RenameMe;
 import entities.Show;
 
 import javax.persistence.EntityManager;

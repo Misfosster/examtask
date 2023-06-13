@@ -1,13 +1,9 @@
 package facades;
 
 import entities.Guest;
-import entities.Show;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import java.util.List;
 
 public class GuestFacade {
     private static GuestFacade instance;

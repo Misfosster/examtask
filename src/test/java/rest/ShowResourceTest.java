@@ -170,6 +170,7 @@ class ShowResourceTest {
 
         }
     }
+
     @Test
     public void update() {
         // Create a new show
@@ -191,7 +192,6 @@ class ShowResourceTest {
         json.put("startTime", new Time(System.currentTimeMillis()).toString());
 
         try {
-            // Perform the update request
             given()
                     .contentType("application/json")
                     .header("x-access-token", securityToken)
@@ -207,7 +207,27 @@ class ShowResourceTest {
     }
 
 
-
+    @Test
+    void delete() {
+        login("admin", "adminpw");
+        Show show = new Show();
+        show.setName("Test show");
+        show.setDuration(120);
+        show.setStartDate(new Date(System.currentTimeMillis()).toString());
+        show.setStartTime(new Time(System.currentTimeMillis()).toString());
+        show = showFacade.create(show);
+        try {
+            given()
+                    .contentType("application/json")
+                    .header("x-access-token", securityToken)
+                    .when()
+                    .delete("/show/delete/{id}", show.getId())
+                    .then()
+                    .statusCode(200);
+        } catch (Exception e) {
+            fail("An error occurred while deleting the show: " + e.getMessage());
+        }
+    }
 
 }
 

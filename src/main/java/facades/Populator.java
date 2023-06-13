@@ -6,8 +6,6 @@
 package facades;
 
 //import com.nimbusds.jose.shaded.json.JSONObject;
-import dtos.RenameMeDTO;
-import entities.RenameMe;
 import javax.persistence.EntityManagerFactory;
 import utils.EMF_Creator;
 

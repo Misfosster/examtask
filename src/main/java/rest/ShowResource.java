@@ -69,15 +69,19 @@ public class ShowResource {
         return Response.ok().entity(GSON.toJson(showDTO)).build();
     }
 
+
     @DELETE
     @Path("/delete/{id}")
     @RolesAllowed("admin")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response deleteShow(@PathParam("id") int id) {
-        Show show = showFacade.delete(id);
-        ShowDTO showDTO = new ShowDTO(show);
+    public Response deleteShow(@PathParam("id") Long id) {
+        EntityManager em = EMF.createEntityManager();
+        TypedQuery<Show> query = em.createQuery("SELECT s FROM Show s WHERE s.id = :id", Show.class).setParameter("id", id);
+        Show show = query.getSingleResult();
 
-        return Response.ok().entity(GSON.toJson(showDTO)).build();
+        showFacade.delete(show);
+
+        return Response.ok().build();
     }
 }
