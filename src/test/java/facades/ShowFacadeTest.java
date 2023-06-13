@@ -4,8 +4,11 @@ import entities.Guest;
 import entities.Show;
 import entities.User;
 import utils.EMF_Creator;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.TypedQuery;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 
@@ -65,6 +68,16 @@ public class ShowFacadeTest {
 
     @AfterAll
     public static void tearDownClass() {
+        em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.createQuery("DELETE FROM Show").executeUpdate();
+            em.createQuery("DELETE FROM Guest").executeUpdate();
+            em.createQuery("DELETE FROM User").executeUpdate();
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
     }
 
 
@@ -116,9 +129,10 @@ public class ShowFacadeTest {
 
     @Test
     public void getGuests() {
-        Show show = em.find(Show.class, 1L);
+        TypedQuery<Show> typedQuery = em.createQuery("SELECT s FROM Show s WHERE s.name = :name", Show.class).setParameter("name", "Test show");
+        Show show = typedQuery.getSingleResult();
 
-        assertTrue(facade.getGuests(show).size()>0);
+        assertTrue(facade.getGuests(show).size() > 0);
     }
 
 }

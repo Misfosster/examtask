@@ -14,7 +14,7 @@ public class Show {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "duration", nullable = false)
@@ -95,5 +95,7 @@ public class Show {
 
     public void addGuest(Guest guest) {
         guests.add(guest);
+        guest.getShows().add(this);
     }
+
 }

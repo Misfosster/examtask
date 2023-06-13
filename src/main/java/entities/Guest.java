@@ -23,7 +23,7 @@ public class Guest {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "status", nullable = false, unique = true)
+    @Column(name = "status", nullable = false)
     private String status;
 
     @ManyToMany(mappedBy = "guests")
@@ -44,6 +44,15 @@ public class Guest {
         this.status = status;
     }
 
+    public void addShow(Show show) {
+        shows.add(show);
+        show.getGuests().add(this);
+    }
+
+
+    public List<Show> getShows() {
+        return shows;
+    }
 
     public String getStatus() {
         return status;
@@ -84,4 +93,5 @@ public class Guest {
     public void setId(Long id) {
         this.id = id;
     }
+
 }
