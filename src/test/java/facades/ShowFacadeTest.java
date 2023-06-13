@@ -10,7 +10,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.TypedQuery;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,12 +37,12 @@ public class ShowFacadeTest {
 
         try {
             em.getTransaction().begin();
+            em.createQuery("DELETE FROM Show").executeUpdate();
+            em.createQuery("DELETE FROM Guest").executeUpdate();
+            em.createQuery("DELETE FROM User").executeUpdate();
+            em.createQuery("DELETE FROM Festival").executeUpdate();
 
-            Show show = new Show();
-            show.setName("Test show");
-            show.setDuration(120);
-            show.setStartDate(new Date(System.currentTimeMillis()));
-            show.setStartTime(new Time(System.currentTimeMillis()));
+            Show show = new Show("Test show", 120, new Date(System.currentTimeMillis()), new Time(System.currentTimeMillis()));
 
             User user = new User("testname", "testpw");
 
@@ -74,6 +73,8 @@ public class ShowFacadeTest {
             em.createQuery("DELETE FROM Show").executeUpdate();
             em.createQuery("DELETE FROM Guest").executeUpdate();
             em.createQuery("DELETE FROM User").executeUpdate();
+            em.createQuery("DELETE FROM Festival").executeUpdate();
+
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -133,6 +134,26 @@ public class ShowFacadeTest {
         Show show = typedQuery.getSingleResult();
 
         assertTrue(facade.getGuests(show).size() > 0);
+    }
+
+    @Test
+    void getShows() {
+        TypedQuery<Guest> query = em.createQuery("SELECT g FROM Guest g", Guest.class);
+        Guest guest = query.getResultList().get(0);
+
+        Show show = new Show("Test show", 120, new Date(System.currentTimeMillis()), new Time(System.currentTimeMillis()));
+        show.addGuest(guest);
+        em.persist(show);
+
+        em.refresh(guest);
+
+        assertTrue(facade.getShowsByGuest(guest).size() > 0);
+    }
+
+
+    @Test
+    void getAvailableShows() {
+        assertTrue(facade.getAvailableShows().size()>0);
     }
 
 }

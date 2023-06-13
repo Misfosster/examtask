@@ -46,12 +46,22 @@ public class Guest {
 
     public void addShow(Show show) {
         shows.add(show);
-        show.getGuests().add(this);
     }
-
 
     public List<Show> getShows() {
         return shows;
+    }
+
+    public void setShows(List<Show> shows) {
+        this.shows = shows;
+    }
+
+    public Festival getFestival() {
+        return festival;
+    }
+
+    public void setFestival(Festival festival) {
+        this.festival = festival;
     }
 
     public String getStatus() {

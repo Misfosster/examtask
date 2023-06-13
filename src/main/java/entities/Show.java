@@ -95,7 +95,6 @@ public class Show {
 
     public void addGuest(Guest guest) {
         guests.add(guest);
-        guest.getShows().add(this);
     }
 
 }

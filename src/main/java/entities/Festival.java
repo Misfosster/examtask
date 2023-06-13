@@ -28,6 +28,42 @@ public class Festival {
     @OneToMany(mappedBy = "festival", cascade = CascadeType.ALL)
     private List<Guest> guests = new ArrayList<>();
 
+    public Festival() {
+    }
+
+    public Festival(String name, String city, Date startDate, Integer duration) {
+        this.name = name;
+        this.city = city;
+        this.startDate = startDate;
+        this.duration = duration;
+    }
+
+    public void addGuest(Guest guest) {
+        guests.add(guest);
+        guest.setFestival(this);
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Integer getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
+
+    public void add(Guest guest) {
+        guests.add(guest);
+        guest.setFestival(this);
+    }
+
     public List<Guest> getGuests() {
         return guests;
     }

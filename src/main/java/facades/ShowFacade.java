@@ -99,4 +99,25 @@ public class ShowFacade {
         }
         return guestList;
     }
+    public List<Show> getShowsByGuest(Guest guest) {
+        EntityManager em = getEntityManager();
+        List<Show> showList = null;
+        try {
+            TypedQuery<Show> query = em.createQuery("SELECT s FROM Show s JOIN s.guests g WHERE g.id = :id", Show.class).setParameter("id", guest.getId());
+            showList = query.getResultList();
+        } catch (Exception e) {
+        }
+        return showList;
+    }
+
+    public List<Show> getAvailableShows() {
+        EntityManager em = getEntityManager();
+        List<Show> showList = null;
+        try {
+            TypedQuery<Show> query = em.createQuery("SELECT s FROM Show s", Show.class);
+            showList = query.getResultList();
+        } catch (Exception e) {
+        }
+        return showList;
+    }
 }

@@ -42,9 +42,9 @@ public class GuestFacade {
             try {
                 existingGuest = query.getSingleResult();
                 guest = existingGuest;
-                System.out.println("Show already exists");
+                System.out.println("Guest already exists");
             } catch (Exception ex) {
-                System.out.println("Creating show");
+                System.out.println("Creating guest");
             }
             em.persist(guest);
             em.getTransaction().commit();
@@ -66,28 +66,5 @@ public class GuestFacade {
             em.close();
         }
         return guest;
-    }
-
-
-    public List<Show> getShows(Guest guest) {
-        EntityManager em = getEntityManager();
-        List<Show> showList = null;
-        try {
-            guest = em.find(Guest.class, guest.getId());
-            showList = guest.getShows();
-        } catch (Exception e) {
-        }
-        return showList;
-    }
-
-    public List<Show> getAvailableShows() {
-        EntityManager em = getEntityManager();
-        List<Show> showList = null;
-        try {
-            TypedQuery<Show> query = em.createQuery("SELECT s FROM Show s", Show.class);
-            showList = query.getResultList();
-        } catch (Exception e) {
-        }
-        return showList;
     }
 }

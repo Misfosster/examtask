@@ -83,6 +83,8 @@ class GuestFacadeTest {
             em.createQuery("DELETE FROM Show").executeUpdate();
             em.createQuery("DELETE FROM Guest").executeUpdate();
             em.createQuery("DELETE FROM User").executeUpdate();
+            em.createQuery("DELETE FROM Festival").executeUpdate();
+
             em.getTransaction().commit();
         } finally {
             em.close();
@@ -126,17 +128,5 @@ class GuestFacadeTest {
         facade.update(guest);
         em.refresh(guest);
         assertTrue(guest.getShows().size()>1);
-    }
-
-    @Test
-    void getShows() {
-        TypedQuery<Guest> query = em.createQuery("SELECT g FROM Guest g", Guest.class);
-        Guest guest = query.getResultList().get(0);
-        assertTrue(facade.getShows(guest).size()>0);
-    }
-
-    @Test
-    void getAvailableShows() {
-        assertTrue(facade.getAvailableShows().size()>0);
     }
 }

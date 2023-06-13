@@ -26,7 +26,6 @@ class UserFacadeTest {
 
     @BeforeEach
     void setUp() {
-        System.out.println("_______________________________________________________\nTESTING:\n");
         EntityManager em = emf.createEntityManager();
         try {
             User foundUser = em.find(User.class, "test");
