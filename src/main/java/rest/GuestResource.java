@@ -57,9 +57,9 @@ public class GuestResource {
         TypedQuery<Guest> query1 = em.createQuery("SELECT g FROM Guest g WHERE g.user.userName = :username", Guest.class).setParameter("username", username);
         Guest guest = query1.getSingleResult();
         System.out.println(show);
-        guest.addShow(show);
+        show.addGuest(guest);
         System.out.println(guest);
-        guestFacade.update(guest);
+        em.merge(show);
         em.getTransaction().commit();
 
         return Response.ok().build();
