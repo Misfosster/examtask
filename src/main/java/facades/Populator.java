@@ -6,7 +6,12 @@
 package facades;
 
 //import com.nimbusds.jose.shaded.json.JSONObject;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+
+import entities.Guest;
+import entities.Role;
+import entities.User;
 import utils.EMF_Creator;
 
 /**
@@ -16,6 +21,17 @@ import utils.EMF_Creator;
 public class Populator {
     public static void populate() {
         EntityManagerFactory emf = EMF_Creator.createEntityManagerFactory();
+        GuestFacade guestFacade = GuestFacade.getFacade(emf);
+//        ShowFacade showFacade = ShowFacade.getFacade(emf);
+//        UserFacade userFacade = UserFacade.getFacade(emf);
+//        FestivalFacade festivalFacade = FestivalFacade.getFacade(emf);
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        User admin = new User("admin", "test123");
+        admin.addRole(new Role("admin"));
+        em.persist(admin);
+        em.getTransaction().commit();
+        guestFacade.create(new Guest(new User("user", "test123"), "12345678", "testemail", "teststatus"));
     }
 
     public static void main(String[] args) {

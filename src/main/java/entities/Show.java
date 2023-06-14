@@ -39,9 +39,9 @@ public class Show {
         this.duration = duration;
         this.startDate = startDate;
         this.startTime = startTime;
+        this.guests = new ArrayList<>();
     }
 
-    @Transient
     public List<Guest> getGuests() {
         return guests;
     }
@@ -93,6 +93,18 @@ public class Show {
 
     public void addGuest(Guest guest) {
         guests.add(guest);
+    }
+
+    @Override
+    public String toString() {
+        return "Show{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", duration=" + duration +
+                ", startDate='" + startDate + '\'' +
+                ", startTime='" + startTime + '\'' +
+                ", guests=" + guests +
+                '}';
     }
 
 }

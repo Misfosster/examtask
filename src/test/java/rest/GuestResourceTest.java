@@ -159,22 +159,13 @@ public class GuestResourceTest {
     @Test
     void create() {
         login("admin", "adminpw");
-        EntityManager em = emf.createEntityManager();
-        User user = new User("testname2", "testpw");
-//        Role role = new Role("user");
-//        user.addRole(role);
-//        em.getTransaction().begin();
-//        em.merge(user);
-//        em.getTransaction().commit();
-
-        Guest guest = new Guest(user, "12214589632145896", "testemail", "teststatus");
-        em.persist(guest);
+        String jsonBody = "{\"user\":{\"user_name\":\"testname2\",\"user_password\":\"testpw\"},\"phone\":\"12214589632145896\",\"email\":\"testemail\",\"status\":\"teststatus\"}";
 
         try {
             given()
                     .contentType("application/json")
                     .header("x-access-token", securityToken)
-                    .body(guest)
+                    .body(jsonBody)
                     .when()
                     .post("/guest/create")
                     .then()

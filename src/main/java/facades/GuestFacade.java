@@ -5,6 +5,7 @@ import entities.Role;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 
 public class GuestFacade {
@@ -44,13 +45,18 @@ public class GuestFacade {
             } catch (Exception ex) {
                 System.out.println("Creating guest");
             }
+            if (guest.getUser().getRoleList()!=null) {
+                em.persist(guest);
+            }
             try {
                 TypedQuery<Role> query1 = em.createQuery("SELECT r FROM Role r WHERE r.roleName = :roleName", Role.class).setParameter("roleName", "user");
                 Role existingRole = query1.getSingleResult();
                 guest.getUser().addRole(existingRole);
             } catch (Exception ex) {
                 System.out.println("Creating role");
+
                 guest.getUser().addRole(new Role("user"));
+
                 em.persist(guest);
             }
             em.merge(guest);
@@ -63,15 +69,22 @@ public class GuestFacade {
 
     public Guest update(Guest guest) {
         EntityManager em = getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
         try {
-            em.getTransaction().begin();
+            transaction.begin();
 
             em.merge(guest);
 
-            em.getTransaction().commit();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
         } finally {
             em.close();
         }
         return guest;
     }
+
 }

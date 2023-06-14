@@ -2,8 +2,10 @@ package rest;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import entities.Guest;
 import entities.Show;
+import entities.User;
 import facades.GuestFacade;
 import facades.ShowFacade;
 import utils.EMF_Creator;
@@ -28,11 +30,16 @@ public class GuestResource {
     @Consumes("application/json")
     @Produces("application/json")
     public Response createGuest(String jsonGuest) {
-        Guest guest = GSON.fromJson(jsonGuest, Guest.class);
+        JsonObject jsonObject = GSON.fromJson(jsonGuest, JsonObject.class);
+        User user = new User(jsonObject.getAsJsonObject("user").get("user_name").getAsString(), jsonObject.getAsJsonObject("user").get("user_password").getAsString());
+        String phone = jsonObject.get("phone").getAsString();
+        String email = jsonObject.get("email").getAsString();
+        String status = jsonObject.get("status").getAsString();
+        Guest guest = new Guest(user, phone, email, status);
 
         guestFacade.create(guest);
 
-        return Response.ok().entity(GSON.toJson(guest)).build();
+        return Response.ok().build();
     }
 
     @PUT
@@ -43,11 +50,17 @@ public class GuestResource {
     public Response signUp(@PathParam("username") String username, String jsonShow)
     {
         EntityManager em = EMF.createEntityManager();
+        em.getTransaction().begin();
         Show show = GSON.fromJson(jsonShow, Show.class);
-        TypedQuery<Guest> query = em.createQuery("SELECT g FROM Guest g WHERE g.user.userName = :username", Guest.class).setParameter("username", username);
-        Guest guest = query.getSingleResult();
+        TypedQuery<Show> query = em.createQuery("SELECT s FROM Show s WHERE s.name = :name", Show.class).setParameter("name", show.getName());
+        show = query.getSingleResult();
+        TypedQuery<Guest> query1 = em.createQuery("SELECT g FROM Guest g WHERE g.user.userName = :username", Guest.class).setParameter("username", username);
+        Guest guest = query1.getSingleResult();
+        System.out.println(show);
         guest.addShow(show);
+        System.out.println(guest);
         guestFacade.update(guest);
+        em.getTransaction().commit();
 
         return Response.ok().build();
     }

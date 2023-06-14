@@ -26,7 +26,7 @@ public class Guest {
     @Column(name = "status", nullable = false)
     private String status;
 
-    @ManyToMany(mappedBy = "guests")
+    @ManyToMany(mappedBy = "guests", cascade = CascadeType.MERGE)
     private List<Show> shows = new ArrayList<>();
 
     @ManyToOne
@@ -42,6 +42,7 @@ public class Guest {
         this.phone = phone;
         this.email = email;
         this.status = status;
+        this.shows = new ArrayList<>();
     }
 
     public void addShow(Show show) {
@@ -104,4 +105,16 @@ public class Guest {
         this.id = id;
     }
 
+    @Override
+    public String toString(){
+        return "Guest{" +
+                "id=" + id +
+                ", user=" + user +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", status='" + status + '\'' +
+                ", shows=" + shows +
+                ", festival=" + festival +
+                '}';
+    }
 }

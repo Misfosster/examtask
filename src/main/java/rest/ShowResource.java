@@ -48,7 +48,6 @@ public class ShowResource {
     public Response createShow(String jsonShow) {
         Show show = GSON.fromJson(jsonShow, Show.class);
 
-
         showFacade.create(show);
         ShowDTO showDTO = new ShowDTO(show);
 
